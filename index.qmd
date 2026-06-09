@@ -17,7 +17,7 @@ format:
     code-fold: true
     code-copy: true
     code-overflow: wrap
-    code-tools: false
+    code-tools: true
     code-summary: "Display code"
     df-print: kable
     embed-math: true
@@ -122,7 +122,7 @@ group_nesting <- read_csv("data/group_nesting.csv", show_col_types = FALSE)
 ou_structure  <- read_csv("data/ou_structure.csv",  show_col_types = FALSE)
 ```
 
----
+
 
 ## Introduction
 
@@ -134,7 +134,7 @@ Graph theory is the natural framework for this problem. Active Directory is a di
 
 This case study uses NexaCore Financial Technologies as its subject: a synthetic but operationally realistic fintech organization with 175 principals, 32 groups organized across four privilege tiers, and 261 membership edges. Six deliberate misconfigurations — each with a plausible origin story — are embedded in the topology. The analysis surfaces them, traces the escalation paths they enable, and produces a prioritized remediation backlog derived directly from the graph structure.
 
----
+
 
 ## Graph Theory as a Risk Framework
 
@@ -156,7 +156,7 @@ The diagram below makes the core distinction concrete. The left panel shows what
 
 The power of the approach is not that it requires sophisticated mathematics. Breadth-first search — the algorithm underlying all reachability and shortest-path computations in this analysis — was described in 1945 and runs in linear time on graphs of any realistic enterprise size. An AD environment with 50,000 principals and 200,000 membership edges completes a full reachability sweep in seconds on commodity hardware. The computational barrier does not exist. What has historically existed is the absence of a governance process that requires anyone to run the analysis.
 
----
+
 
 ## The NexaCore AD Topology
 
@@ -249,7 +249,7 @@ The department distribution reflects a technology-oriented financial services fi
 
 The 15 service accounts warrant particular attention. Unlike human principals, service accounts are non-interactive — they authenticate programmatically, their passwords often never expire, and they are rarely reviewed in access certification cycles. Several hold privileged group memberships that were appropriate at provisioning time and have never been revisited.
 
----
+
 
 ## Graph Construction
 
@@ -400,7 +400,6 @@ ggraph(tg_groups, layout = "sugiyama") +
   )
 ```
 
----
 
 ## Privilege Escalation Path Analysis
 
@@ -653,7 +652,7 @@ ggraph(tg_full, layout = "fr") +
   )
 ```
 
----
+
 
 ## Centrality & Critical Nodes
 
@@ -741,7 +740,7 @@ centrality_df |>
 
 `Backup-Operators` and `IT-Admins` emerge as the two most central nodes in the privilege graph — a finding that follows directly from the misconfiguration architecture. The 2019 data export project that nested `Finance-Managers` into `Backup-Operators` did not just create a single privilege escalation path; it made `Backup-Operators` the critical junction through which every Finance department escalation route passes. Any remediation strategy that does not address `Backup-Operators` first is working around the most acute exposure.
 
----
+
 
 ## Blast Radius Assessment
 
@@ -797,7 +796,7 @@ blast_results |>
   )
 ```
 
----
+
 
 ## Remediation Prioritization
 
@@ -862,7 +861,6 @@ All six remediations are operationally straightforward. None requires an applica
 
 The absence of technical complexity is itself a governance finding. These misconfigurations persisted not because they were hard to fix, but because no process existed to detect them. A quarterly privilege graph analysis — automatable with the R code in this document — would have surfaced each of them before they accumulated into a coherent escalation chain.
 
----
 
 ## On Methodological Validity: Does This Generalize?
 
@@ -878,7 +876,6 @@ Real-world AD environments present the analysis with more complexity than NexaCo
 
 One practical consideration for production deployments deserves acknowledgment. The analysis here operates on a complete, clean edge list. Extracting an equivalent dataset from a real AD environment requires appropriate tooling — `Get-ADGroupMember` with recursion disabled (to capture direct memberships for the graph to traverse), or dedicated identity governance platforms that export the membership graph directly. The extraction step introduces its own governance considerations around data sensitivity. But that is an implementation question, not a methodological one. The graph, once constructed from accurate source data, will find what is there.
 
----
 
 ## Key Takeaways & Conclusion
 
@@ -890,7 +887,6 @@ The third takeaway is methodological. Graph analysis does not replace access rev
 
 All six misconfigurations identified in this analysis are removable with no application changes, no infrastructure modifications, and no vendor engagement. The remediation backlog in Table 10 represents fewer than two days of combined IAM engineering effort. What it requires, beyond the engineering time, is a periodic process for running the analysis, an owner for each finding, and a commitment to treating stale group nesting as a control failure rather than a configuration artifact.
 
----
 
 ## Session Information
 
